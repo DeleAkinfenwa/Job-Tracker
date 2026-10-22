@@ -4,11 +4,9 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
+from accounts.demo import DEMO_EMAIL, DEMO_PASSWORD
 from accounts.models import User
 from tracker.models import Application, Company
-
-DEMO_EMAIL = "demo@example.com"
-DEMO_PASSWORD = "Demo-password-2026"
 
 COMPANIES = [
     ("Northwind Analytics", "https://northwind.example.com", "Data", "Remote"),
@@ -29,9 +27,19 @@ APPLICATIONS = [
 class Command(BaseCommand):
     help = "Load a demo user with sample companies and applications."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--reset",
+            action="store_true",
+            help="Delete the demo user and everything they own, then load fresh demo data.",
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
-        if User.objects.filter(email=DEMO_EMAIL).exists():
+        existing = User.objects.filter(email=DEMO_EMAIL)
+        if options["reset"]:
+            existing.delete()  # companies and applications are removed by CASCADE
+        elif existing.exists():
             self.stdout.write("Demo data already loaded.")
             return
 

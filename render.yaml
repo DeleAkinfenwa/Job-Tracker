@@ -13,3 +13,6 @@ services:
         generateValue: true
       - key: DJANGO_DEBUG
         value: "False"
+      # The deployed frontend's URL, e.g. https://job-tracker.netlify.app
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

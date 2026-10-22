@@ -19,5 +19,7 @@ USER appuser
 
 EXPOSE 8000
 
-# Apply migrations, then serve with Gunicorn. PORT is set by hosts like Render; defaults to 8000.
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2"]
+# Apply migrations, reset the shared demo account, then serve with Gunicorn.
+# Render's free tier restarts the server after it sleeps, so the demo gets fresh data regularly.
+# PORT is set by hosts like Render; defaults to 8000.
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py seed_demo --reset && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2"]

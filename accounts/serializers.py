@@ -2,14 +2,21 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
+from .demo import is_demo_user
+
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_demo = serializers.SerializerMethodField(help_text="True for the shared demo account, which can't be edited.")
+
     class Meta:
         model = User
-        fields = ("id", "email", "full_name", "date_joined")
+        fields = ("id", "email", "full_name", "date_joined", "is_demo")
         read_only_fields = ("id", "email", "date_joined")
+
+    def get_is_demo(self, user) -> bool:
+        return is_demo_user(user)
 
 
 class RegisterSerializer(serializers.ModelSerializer):

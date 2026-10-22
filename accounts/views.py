@@ -1,5 +1,7 @@
 from rest_framework import generics, permissions
+from rest_framework.exceptions import PermissionDenied
 
+from .demo import is_demo_user
 from .serializers import RegisterSerializer, UserSerializer
 
 
@@ -18,3 +20,8 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def perform_update(self, serializer):
+        if is_demo_user(self.request.user):
+            raise PermissionDenied("The demo account's profile can't be changed.")
+        serializer.save()
