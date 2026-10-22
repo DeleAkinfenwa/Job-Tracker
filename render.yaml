@@ -1,0 +1,15 @@
+# Render Blueprint: deploys the API from the Dockerfile.
+# Set DATABASE_URL in the Render dashboard to a free Postgres from Neon or Supabase.
+services:
+  - type: web
+    name: job-tracker-django
+    runtime: docker
+    plan: free
+    healthCheckPath: /health/
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"

@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "DJ"]
+ignore = ["DJ001"]  # blank=True CharFields without null are the Django-recommended pattern
+
+[tool.ruff.lint.isort]
+known-first-party = ["accounts", "config", "tracker"]
