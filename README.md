@@ -9,14 +9,15 @@
 > The demo runs on free hosting that goes to sleep when nobody is using it. If the page says it's waking up the
 > server, give it up to a minute and it will load.
 
-![The application board in Job Tracker](docs/screenshots/board.png)
+![The applications table in Job Tracker](docs/screenshots/applications.png)
 
 ## What it does
 
 Looking for a job means juggling dozens of applications at different stages. Job Tracker keeps them in one place:
 
-- **See every application at a glance**, grouped by stage: wishlist, applied, interviewing, offer, rejected or withdrawn.
-- **Move an application to its next stage** with one click as things progress.
+- **See every application at a glance** in one table, with a colour-coded bar showing how many sit at each stage:
+  wishlist, applied, interviewing, offer, rejected or withdrawn.
+- **Sort and filter** by salary, date applied or stage, and move an application to its next stage in one click.
 - **Save the details that matter**: the company, salary range, date applied, a link to the job posting and your own notes.
 - **Track how your search is going**: total applications, interviews, offers, and your response rate (how often
   companies get back to you).
@@ -77,8 +78,9 @@ tracker/
   tests.py             API tests
 frontend/
   src/api/             fetch wrapper with token refresh, one function per endpoint
-  src/pages/           Login, sign-up, board, application form, companies
-  src/components/      Layout, form fields, stats, "waking up the server" notice
+  src/pages/           Login, sign-up, applications table, application form, companies
+  src/api/mock.js      In-browser copy of the API used by the standalone demo build
+  src/components/      Layout, form fields, stage summary, "waking up the server" notice
 docs/                  Screenshots
 ```
 
@@ -192,13 +194,15 @@ See [DEPLOY.md](DEPLOY.md) for a step-by-step guide to hosting the whole project
   server after it sleeps, so the demo data is restored regularly. The demo profile is read-only.
 - **Token refresh in one place.** The frontend's `request()` helper retries once with a fresh access token after a
   401, and concurrent requests share a single refresh call.
+- **Sorting and filtering in the API.** The table's column headers and stage filters map straight to the API's
+  `ordering` and `status` parameters, so the database does the work.
 - **`select_related` and annotated counts** keep list endpoints to a single query each.
 
 ### Possible next steps
 
 - Interview events with dates and reminder emails
 - Token blacklisting on logout
-- Drag and drop on the board
+- Charts of applications over time
 
 ## License
 

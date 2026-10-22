@@ -27,8 +27,15 @@ const realApi = {
   updateCompany: (id, data) => request(`/api/companies/${id}/`, { method: "PATCH", body: data }),
   deleteCompany: (id) => request(`/api/companies/${id}/`, { method: "DELETE" }),
 
-  listApplications: (search = "") =>
-    requestAll(`/api/applications/${search ? `?search=${encodeURIComponent(search)}` : ""}`),
+  // Filtering and sorting happen in the API, e.g. ?status=applied&ordering=-salary_max
+  listApplications: ({ search = "", status = "", ordering = "" } = {}) => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (status) params.set("status", status);
+    if (ordering) params.set("ordering", ordering);
+    const query = params.toString();
+    return requestAll(`/api/applications/${query ? `?${query}` : ""}`);
+  },
   getApplication: (id) => request(`/api/applications/${id}/`),
   createApplication: (data) => request("/api/applications/", { method: "POST", body: data }),
   updateApplication: (id, data) => request(`/api/applications/${id}/`, { method: "PATCH", body: data }),

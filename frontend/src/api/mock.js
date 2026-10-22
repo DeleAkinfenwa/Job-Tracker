@@ -59,6 +59,7 @@ function seedDemo() {
       applied_on: ago == null ? null : daysAgo(ago),
       notes,
       created_at: new Date(Date.now() - (ago ?? 40) * 864e5).toISOString(),
+      updated_at: new Date(Date.now() - (ago ?? 40) * 432e5).toISOString(),
     }),
   );
 }
@@ -168,14 +169,27 @@ export const mockApi = {
       return null;
     }),
 
-  listApplications: (search = "") =>
+  listApplications: ({ search = "", status = "", ordering = "-created_at" } = {}) =>
     run(() => {
       const u = me();
       const q = search.toLowerCase();
+      const desc = ordering.startsWith("-");
+      const field = ordering.replace(/^-/, "") || "created_at";
+      const compare = (a, b) => {
+        const x = a[field];
+        const y = b[field];
+        // Like the real API: empty values always sort last.
+        if (x == null && y == null) return 0;
+        if (x == null) return 1;
+        if (y == null) return -1;
+        const result = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
+        return desc ? -result : result;
+      };
       return u.applications
         .map((a) => appView(u, a))
+        .filter((a) => !status || a.status === status)
         .filter((a) => !q || [a.role_title, a.notes, a.company.name].some((t) => t.toLowerCase().includes(q)))
-        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+        .sort(compare);
     }),
   getApplication: (appId) =>
     run(() => {
@@ -187,7 +201,7 @@ export const mockApi = {
   createApplication: (data) =>
     run(() => {
       const u = me();
-      const app = { id: id(), ...validateApplication(u, data), created_at: now() };
+      const app = { id: id(), ...validateApplication(u, data), created_at: now(), updated_at: now() };
       u.applications.push(app);
       return appView(u, app);
     }),
@@ -196,7 +210,7 @@ export const mockApi = {
       const u = me();
       const app = u.applications.find((a) => a.id === Number(appId));
       if (!app) throw new MockError(404, { detail: "Not found." });
-      Object.assign(app, validateApplication(u, data, app));
+      Object.assign(app, validateApplication(u, data, app), { updated_at: now() });
       return appView(u, app);
     }),
   deleteApplication: (appId) =>

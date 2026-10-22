@@ -4,7 +4,7 @@ import { useAuth } from "./auth.jsx";
 import Layout from "./components/Layout.jsx";
 import ServerWakeNotice from "./components/ServerWakeNotice.jsx";
 import ApplicationFormPage from "./pages/ApplicationFormPage.jsx";
-import BoardPage from "./pages/BoardPage.jsx";
+import ApplicationsPage from "./pages/ApplicationsPage.jsx";
 import CompaniesPage from "./pages/CompaniesPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
@@ -34,7 +34,7 @@ export default function App() {
             </RequireLogin>
           }
         >
-          <Route index element={<BoardPage />} />
+          <Route index element={<ApplicationsPage />} />
           <Route path="applications/new" element={<ApplicationFormPage />} />
           <Route path="applications/:id" element={<ApplicationFormPage />} />
           <Route path="companies" element={<CompaniesPage />} />
