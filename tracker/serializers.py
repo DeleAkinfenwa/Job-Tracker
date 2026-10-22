@@ -70,7 +70,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         salary_min = attrs.get("salary_min", getattr(self.instance, "salary_min", None))
         salary_max = attrs.get("salary_max", getattr(self.instance, "salary_max", None))
         if salary_min is not None and salary_max is not None and salary_min > salary_max:
-            raise serializers.ValidationError({"salary_min": "Must be less than or equal to salary_max."})
+            raise serializers.ValidationError({"salary_min": "The minimum salary can't be higher than the maximum."})
         return attrs
 
 
