@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api/endpoints.js";
+import ConfirmButton from "../components/ConfirmButton.jsx";
 import Field from "../components/Field.jsx";
 
 const EMPTY = { name: "", website: "", industry: "", location: "" };
@@ -77,10 +78,6 @@ export default function CompaniesPage() {
   }, []);
 
   async function onDelete(company) {
-    const extra = company.application_count
-      ? ` Its ${company.application_count} application(s) will be deleted too.`
-      : "";
-    if (!window.confirm(`Delete ${company.name}?${extra}`)) return;
     try {
       await api.deleteCompany(company.id);
       load();
@@ -142,9 +139,15 @@ export default function CompaniesPage() {
                 >
                   Edit
                 </button>
-                <button type="button" className="btn btn-ghost danger-text" onClick={() => onDelete(c)}>
-                  Delete
-                </button>
+                <ConfirmButton
+                  className="btn btn-ghost danger-text"
+                  question={
+                    c.application_count
+                      ? `Also deletes ${c.application_count} application${c.application_count === 1 ? "" : "s"}.`
+                      : "Delete this company?"
+                  }
+                  onConfirm={() => onDelete(c)}
+                />
               </div>
             </li>
           ))}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { api, STATUSES } from "../api/endpoints.js";
+import ConfirmButton from "../components/ConfirmButton.jsx";
 import Field from "../components/Field.jsx";
 
 const NEW_COMPANY = "new";
@@ -102,7 +103,6 @@ export default function ApplicationFormPage() {
   }
 
   async function onDelete() {
-    if (!window.confirm("Delete this application? This can't be undone.")) return;
     try {
       await api.deleteApplication(id);
       navigate("/");
@@ -201,9 +201,7 @@ export default function ApplicationFormPage() {
 
         <div className="form-actions">
           {isEdit && (
-            <button type="button" className="btn btn-danger" onClick={onDelete}>
-              Delete
-            </button>
+            <ConfirmButton question="Delete this application?" onConfirm={onDelete} />
           )}
           <span className="spacer" />
           <Link to="/" className="btn btn-ghost">

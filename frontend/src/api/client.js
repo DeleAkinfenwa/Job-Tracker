@@ -7,20 +7,48 @@ export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000")
 const ACCESS_KEY = "jobtracker.access";
 const REFRESH_KEY = "jobtracker.refresh";
 
+// Browser storage can be blocked (private windows, strict privacy settings). Fall back to memory so the app still works.
+const memory = new Map();
+const storage = {
+  get(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return memory.get(key) ?? null;
+    }
+  },
+  set(key, value) {
+    memory.set(key, value);
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* memory copy is enough */
+    }
+  },
+  remove(key) {
+    memory.delete(key);
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* nothing stored */
+    }
+  },
+};
+
 export const tokens = {
   get access() {
-    return localStorage.getItem(ACCESS_KEY);
+    return storage.get(ACCESS_KEY);
   },
   get refresh() {
-    return localStorage.getItem(REFRESH_KEY);
+    return storage.get(REFRESH_KEY);
   },
   save({ access, refresh }) {
-    if (access) localStorage.setItem(ACCESS_KEY, access);
-    if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
+    if (access) storage.set(ACCESS_KEY, access);
+    if (refresh) storage.set(REFRESH_KEY, refresh);
   },
   clear() {
-    localStorage.removeItem(ACCESS_KEY);
-    localStorage.removeItem(REFRESH_KEY);
+    storage.remove(ACCESS_KEY);
+    storage.remove(REFRESH_KEY);
   },
 };
 

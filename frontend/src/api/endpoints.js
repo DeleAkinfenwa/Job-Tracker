@@ -1,5 +1,6 @@
 // One function per API call, so components never build URLs themselves.
 import { request, requestAll } from "./client.js";
+import { mockApi } from "./mock.js";
 
 export const DEMO_CREDENTIALS = { email: "demo@example.com", password: "Demo-password-2026" };
 
@@ -14,7 +15,7 @@ export const STATUSES = [
 
 export const statusLabel = (value) => STATUSES.find((s) => s.value === value)?.label ?? value;
 
-export const api = {
+const realApi = {
   health: () => request("/health/", { auth: false }),
 
   login: (email, password) => request("/api/auth/token/", { method: "POST", body: { email, password }, auth: false }),
@@ -34,3 +35,7 @@ export const api = {
   deleteApplication: (id) => request(`/api/applications/${id}/`, { method: "DELETE" }),
   stats: () => request("/api/applications/stats/"),
 };
+
+// The shareable demo build swaps in an in-browser copy of the API, so it works without a server.
+export const IS_STANDALONE_DEMO = import.meta.env.VITE_STANDALONE_DEMO === "true";
+export const api = IS_STANDALONE_DEMO ? mockApi : realApi;
