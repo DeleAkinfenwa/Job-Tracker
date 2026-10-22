@@ -1,33 +1,88 @@
-# Job Tracker API (Django)
+# Job Tracker
 
 ![CI](https://github.com/YOUR-USERNAME/job-tracker-django/actions/workflows/ci.yml/badge.svg)
-![Python](https://img.shields.io/badge/python-3.12-blue)
-![Django](https://img.shields.io/badge/Django-6.1-092E20)
-![DRF](https://img.shields.io/badge/DRF-3.18-A30000)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)
 
-A REST API for tracking job applications, built with **Django**, **Django REST Framework** and **PostgreSQL**.
-Users sign up, add the companies they're interested in, and move each application through its pipeline
-(wishlist → applied → interviewing → offer / rejected), with search, filtering, ordering and summary stats.
+**A web app for keeping track of job applications, from "I'd like to work there" to the final offer.**
 
-**Live demo:** _add your Render URL here_ · **Swagger docs:** `/api/docs/` · **Admin:** `/admin/`
+**[Try the live demo](https://YOUR-SITE.netlify.app)**: click **Explore the demo** and you're in, no sign-up needed.
+
+> The demo runs on free hosting that goes to sleep when nobody is using it. If the page says it's waking up the
+> server, give it up to a minute and it will load.
+
+![The application board in Job Tracker](docs/screenshots/board.png)
+
+## What it does
+
+Looking for a job means juggling dozens of applications at different stages. Job Tracker keeps them in one place:
+
+- **See every application at a glance**, grouped by stage: wishlist, applied, interviewing, offer, rejected or withdrawn.
+- **Move an application to its next stage** with one click as things progress.
+- **Save the details that matter**: the company, salary range, date applied, a link to the job posting and your own notes.
+- **Track how your search is going**: total applications, interviews, offers, and your response rate (how often
+  companies get back to you).
+- **Search** across job titles, companies and notes.
+- **Your data is private.** Each person has their own account and can only ever see their own applications.
+
+## How it's built
+
+The project has three parts that work together:
+
+| Part | What it does | Built with |
+|---|---|---|
+| **Website** (frontend) | The pages you see and click on | React, JavaScript, CSS |
+| **API** (backend) | Handles logins, saves and checks data, and answers the website's requests | Python, Django, Django REST Framework |
+| **Database** | Stores accounts, companies and applications | PostgreSQL |
+
+When you click something on the website, it sends a request to the API. The API checks who you are, reads or
+updates the database, and sends the result back for the website to display.
+
+All three run on free hosting: the website on **Netlify**, the API on **Render**, and the database on **Neon**.
 
 ## Highlights
 
-- **JWT authentication** with access and refresh tokens (`djangorestframework-simplejwt`)
-- **Custom user model** that logs in with email, with Django's password validators enforced at registration
-- **Per-user data isolation** in one reusable mixin: other users' records return 404, not 403, so IDs can't be probed
-- **Data integrity at two levels**: serializer validation for clear API errors, plus database constraints
-  (unique company name per user, `salary_min <= salary_max`) so bad data can't get in another way
-- **Filtering, search, ordering and pagination** via `django-filter` and DRF, with a custom ordering filter that keeps
-  empty values last
-- **Stats endpoint** computed with a single `GROUP BY` query
-- **Django admin** configured with search, filters, inline applications and editable status
-- **OpenAPI docs** generated with `drf-spectacular` (Swagger UI and ReDoc)
-- **27 tests** run against Postgres in GitHub Actions, alongside linting, `check --deploy`, migration drift and schema validation
-- **Production-ready setup**: Gunicorn, WhiteNoise, environment-based settings, Docker, and a Render blueprint
+- **Full stack**: a React frontend talking to a REST API I designed, backed by a relational database.
+- **Secure logins** with JSON Web Tokens. The website quietly renews your login in the background so you stay
+  signed in.
+- **Data rules enforced twice**: the API gives clear error messages (like "The minimum salary can't be higher than
+  the maximum"), and the database itself refuses bad data as a second line of defence.
+- **A shared demo account** that resets itself automatically, so every visitor gets a clean demo.
+- **44 automated tests** (32 for the API, 12 for the website) that run on every change with GitHub Actions.
+- **Interactive API documentation** generated automatically with Swagger.
+- **Works on phones**, and supports dark mode.
 
-## Data model
+---
+
+## For developers
+
+Everything below is technical detail about how the project works and how to run it.
+
+### Tech stack
+
+- **Backend:** Python 3.12, Django 6.1, Django REST Framework 3.18, `djangorestframework-simplejwt`, `django-filter`,
+  `drf-spectacular`, PostgreSQL 16
+- **Frontend:** React 19, React Router 7, Vite 8, Vitest and Testing Library
+- **Tooling:** GitHub Actions, Ruff, Docker, Gunicorn, WhiteNoise
+
+### Project structure
+
+```
+config/                Django settings, root URLs, WSGI
+accounts/              Custom email-based User model, registration, JWT and profile endpoints, demo account rules
+tracker/
+  models.py            Company and Application, with database constraints
+  serializers.py       Validation and nested company summaries
+  views.py             ViewSets, ownership mixin, stats action
+  filters.py           FilterSet and nulls-last ordering
+  management/commands/seed_demo.py   Loads (or resets) the demo account
+  tests.py             API tests
+frontend/
+  src/api/             fetch wrapper with token refresh, one function per endpoint
+  src/pages/           Login, sign-up, board, application form, companies
+  src/components/      Layout, form fields, stats, "waking up the server" notice
+docs/                  Screenshots
+```
+
+### Data model
 
 ```mermaid
 erDiagram
@@ -62,14 +117,16 @@ erDiagram
     }
 ```
 
-## Endpoints
+### API endpoints
+
+Full interactive docs are at `/api/docs/` on the API.
 
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/api/auth/register/` | Create an account |
 | `POST` | `/api/auth/token/` | Get access and refresh tokens (`email`, `password`) |
 | `POST` | `/api/auth/token/refresh/` | Get a new access token |
-| `GET` / `PATCH` | `/api/auth/me/` | View or update your profile |
+| `GET` / `PATCH` | `/api/auth/me/` | View or update your profile (includes `is_demo`) |
 | `GET` / `POST` | `/api/companies/` | List (`search`, `industry`, `ordering`) or create companies |
 | `GET` / `PUT` / `PATCH` / `DELETE` | `/api/companies/{id}/` | Company detail |
 | `GET` / `POST` | `/api/applications/` | List or create applications |
@@ -81,105 +138,67 @@ Application list parameters: `status`, `company`, `applied_after`, `applied_befo
 (role, notes and company name), `ordering` (`created_at`, `applied_on`, `role_title`, `salary_max`, prefix `-` for
 descending), `limit`, `offset`.
 
-### Example
+### Running locally
 
-```bash
-# Register and get a token
-curl -X POST localhost:8000/api/auth/register/ -H "Content-Type: application/json" \
-  -d '{"email":"me@example.com","password":"A-strong-password-1"}'
-TOKEN=$(curl -s -X POST localhost:8000/api/auth/token/ -H "Content-Type: application/json" \
-  -d '{"email":"me@example.com","password":"A-strong-password-1"}' | python -c "import sys,json;print(json.load(sys.stdin)['access'])")
+You'll need Python 3.12+ and Node.js 20.19+ (or 22.12+).
 
-# Add a company and an application
-curl -X POST localhost:8000/api/companies/ -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" -d '{"name":"Acme","website":"https://acme.com"}'
-curl -X POST localhost:8000/api/applications/ -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"company_id":1,"role_title":"Backend Engineer","status":"applied","salary_min":100000,"salary_max":130000}'
-
-# Highest-paying applications you've submitted
-curl "localhost:8000/api/applications/?status=applied&ordering=-salary_max" -H "Authorization: Bearer $TOKEN"
-```
-
-## Running locally
-
-### Option 1: Docker (easiest)
-
-```bash
-docker compose up --build
-docker compose exec web python manage.py seed_demo         # optional demo data
-docker compose exec web python manage.py createsuperuser   # for /admin
-```
-
-Open http://localhost:8000/api/docs/. The demo login is `demo@example.com` / `Demo-password-2026`.
-
-### Option 2: Virtual environment
-
-Requires Python 3.12+. Uses SQLite unless you set `DATABASE_URL`.
+**1. Start the API** (uses SQLite unless you set `DATABASE_URL`):
 
 ```bash
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 python manage.py migrate
-python manage.py seed_demo          # optional demo data
-python manage.py createsuperuser    # optional, for /admin
-python manage.py runserver
+python manage.py seed_demo          # demo account: demo@example.com / Demo-password-2026
+python manage.py runserver          # http://localhost:8000
 ```
 
-To use PostgreSQL instead, export `DATABASE_URL=postgres://USER:PASSWORD@localhost:5432/job_tracker` first.
+Or with Docker, which also starts Postgres: `docker compose up --build`.
 
-## Tests and code quality
+**2. Start the website** in a second terminal:
 
 ```bash
-python manage.py test                       # SQLite by default; set DATABASE_URL to test on Postgres
+cd frontend
+npm install
+npm run dev                         # http://localhost:5173
+```
+
+The website looks for the API at `http://localhost:8000` by default. To point it elsewhere, copy
+`frontend/.env.example` to `frontend/.env` and change `VITE_API_URL`.
+
+### Tests and code quality
+
+```bash
+python manage.py test               # API tests (SQLite by default; set DATABASE_URL to test on Postgres)
 ruff check . && ruff format --check .
-python manage.py makemigrations --check     # fails if models changed without a migration
+cd frontend && npm test             # website tests
 ```
 
-CI (`.github/workflows/ci.yml`) runs all of these against Postgres 16, plus `manage.py check --deploy` with
-production settings and OpenAPI schema validation.
+CI (`.github/workflows/ci.yml`) runs the API tests against Postgres 16, linting, `manage.py check --deploy`,
+a migration drift check and OpenAPI schema validation, then tests and builds the frontend.
 
-## Deploying for free
+### Deploying
 
-1. Create a free Postgres database on [Neon](https://neon.tech) or [Supabase](https://supabase.com) and copy its connection string.
-2. On [Render](https://render.com), choose **New → Blueprint** and select this repository. It reads `render.yaml`.
-3. Set `DATABASE_URL` when prompted. `DJANGO_SECRET_KEY` is generated for you, and `DEBUG` is off.
-4. When the deploy finishes, open `https://<your-service>.onrender.com/api/docs/`.
-5. Optional: in the Render shell, run `python manage.py seed_demo` and `python manage.py createsuperuser`.
+See [DEPLOY.md](DEPLOY.md) for a step-by-step guide to hosting the whole project for free.
 
-Render's free web services sleep after about 15 minutes without traffic, so the first request after a pause is slower.
+### Design decisions
 
-## Project structure
-
-```
-config/                Project settings, root URLs, WSGI
-accounts/              Custom email-based User model, registration, JWT and profile endpoints
-tracker/
-  models.py            Company and Application, with database constraints
-  serializers.py       Validation and nested company summaries
-  views.py             ViewSets, ownership mixin, stats action
-  filters.py           FilterSet and nulls-last ordering
-  admin.py             Admin configuration
-  management/commands/seed_demo.py   Demo data loader
-  tests.py             API tests
-```
-
-## Design decisions
-
-- **Ownership in one mixin.** `OwnedQuerysetMixin` filters every queryset by the current user and sets the owner on
-  create, so no view can accidentally leak or misassign data.
-- **Company choices scoped per request.** The application serializer limits `company_id` to the user's own companies,
-  so attaching an application to someone else's company is a validation error.
+- **Ownership in one mixin.** `OwnedQuerysetMixin` filters every query by the current user and sets the owner on
+  create, so no view can leak or misassign data. Other users' records return 404, not 403, so IDs can't be probed.
+- **Company choices scoped per request.** The application serializer limits `company_id` to the user's own
+  companies, so attaching an application to someone else's company is a validation error.
 - **Validation in the API and the database.** Serializers give readable errors; `UniqueConstraint` and
   `CheckConstraint` guarantee the rules even for data written through the admin or a shell.
+- **A self-healing demo.** The container runs `seed_demo --reset` on startup. Render's free tier restarts the
+  server after it sleeps, so the demo data is restored regularly. The demo profile is read-only.
+- **Token refresh in one place.** The frontend's `request()` helper retries once with a fresh access token after a
+  401, and concurrent requests share a single refresh call.
 - **`select_related` and annotated counts** keep list endpoints to a single query each.
-- **Settings from environment variables**, with SQLite as a zero-setup default and Postgres everywhere else.
 
-## Possible next steps
+### Possible next steps
 
-- Interview events with dates and reminder emails (Celery)
+- Interview events with dates and reminder emails
 - Token blacklisting on logout
-- A React or HTMX front end that uses this API
+- Drag and drop on the board
 
 ## License
 
