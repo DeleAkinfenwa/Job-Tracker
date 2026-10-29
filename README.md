@@ -1,10 +1,10 @@
 # Job Tracker
 
-![CI](https://github.com/YOUR-USERNAME/job-tracker-django/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/DeleAkinfenwa/Job-Tracker/actions/workflows/ci.yml/badge.svg)
 
 **A web app for keeping track of job applications, from "I'd like to work there" to the final offer.**
 
-**[Try the live demo](https://YOUR-SITE.netlify.app)**: click **Explore the demo** and you're in, no sign-up needed.
+**[Try the live demo](https://Deles-JobTracker.netlify.app)**: click **Explore the demo** and you're in, no sign-up needed.
 
 > The demo runs on free hosting that goes to sleep when nobody is using it. If the page says it's waking up the
 > server, give it up to a minute and it will load.
@@ -28,11 +28,11 @@ Looking for a job means juggling dozens of applications at different stages. Job
 
 The project has three parts that work together:
 
-| Part | What it does | Built with |
-|---|---|---|
-| **Website** (frontend) | The pages you see and click on | React, JavaScript, CSS |
-| **API** (backend) | Handles logins, saves and checks data, and answers the website's requests | Python, Django, Django REST Framework |
-| **Database** | Stores accounts, companies and applications | PostgreSQL |
+| Part                   | What it does                                                              | Built with                            |
+| ---------------------- | ------------------------------------------------------------------------- | ------------------------------------- |
+| **Website** (frontend) | The pages you see and click on                                            | React, JavaScript, CSS                |
+| **API** (backend)      | Handles logins, saves and checks data, and answers the website's requests | Python, Django, Django REST Framework |
+| **Database**           | Stores accounts, companies and applications                               | PostgreSQL                            |
 
 When you click something on the website, it sends a request to the API. The API checks who you are, reads or
 updates the database, and sends the result back for the website to display.
@@ -123,18 +123,18 @@ erDiagram
 
 Full interactive docs are at `/api/docs/` on the API.
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/auth/register/` | Create an account |
-| `POST` | `/api/auth/token/` | Get access and refresh tokens (`email`, `password`) |
-| `POST` | `/api/auth/token/refresh/` | Get a new access token |
-| `GET` / `PATCH` | `/api/auth/me/` | View or update your profile (includes `is_demo`) |
-| `GET` / `POST` | `/api/companies/` | List (`search`, `industry`, `ordering`) or create companies |
-| `GET` / `PUT` / `PATCH` / `DELETE` | `/api/companies/{id}/` | Company detail |
-| `GET` / `POST` | `/api/applications/` | List or create applications |
-| `GET` | `/api/applications/stats/` | Counts by status and response rate |
-| `GET` / `PUT` / `PATCH` / `DELETE` | `/api/applications/{id}/` | Application detail |
-| `GET` | `/health/` | Liveness and database check |
+| Method                             | Path                       | Description                                                 |
+| ---------------------------------- | -------------------------- | ----------------------------------------------------------- |
+| `POST`                             | `/api/auth/register/`      | Create an account                                           |
+| `POST`                             | `/api/auth/token/`         | Get access and refresh tokens (`email`, `password`)         |
+| `POST`                             | `/api/auth/token/refresh/` | Get a new access token                                      |
+| `GET` / `PATCH`                    | `/api/auth/me/`            | View or update your profile (includes `is_demo`)            |
+| `GET` / `POST`                     | `/api/companies/`          | List (`search`, `industry`, `ordering`) or create companies |
+| `GET` / `PUT` / `PATCH` / `DELETE` | `/api/companies/{id}/`     | Company detail                                              |
+| `GET` / `POST`                     | `/api/applications/`       | List or create applications                                 |
+| `GET`                              | `/api/applications/stats/` | Counts by status and response rate                          |
+| `GET` / `PUT` / `PATCH` / `DELETE` | `/api/applications/{id}/`  | Application detail                                          |
+| `GET`                              | `/health/`                 | Liveness and database check                                 |
 
 Application list parameters: `status`, `company`, `applied_after`, `applied_before`, `min_salary`, `search`
 (role, notes and company name), `ordering` (`created_at`, `applied_on`, `role_title`, `salary_max`, prefix `-` for
