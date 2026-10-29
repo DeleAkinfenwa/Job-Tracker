@@ -7,9 +7,8 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
     
-    
     def get_by_natural_key(self, email):
-        #emails are stored in lowercase so Ada@example.com must find ada@example.com
+        # emails are stored in lowercase so Ada@example.com must find ada@example.com
         return self.get(email__iexact=email.strip())
 
     def _create_user(self, email, password, **extra_fields):
