@@ -56,6 +56,11 @@ class AuthTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn("access", res.data)
 
+    def test_login_ignores_email_case(self):
+        self.register(email="Ada@Example.com")
+        res = self.client.post(reverse("token_obtain_pair"), {"email": "Ada@Example.com", "password": PASSWORD})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     def test_wrong_password(self):
         self.register()
         res = self.client.post(reverse("token_obtain_pair"), {"email": "ada@example.com", "password": "nope"})
