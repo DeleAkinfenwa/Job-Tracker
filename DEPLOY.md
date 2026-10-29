@@ -56,11 +56,6 @@ The API only accepts requests from websites it knows about, so tell it your Netl
 
 Now open your Netlify URL and click **Explore the demo**.
 
-## 5. Finish the README
-
-In `README.md`, replace `YOUR-USERNAME` with your GitHub username and `https://YOUR-SITE.netlify.app` with your
-Netlify URL, then push.
-
 ## Good to know
 
 - **The API sleeps when idle.** Render's free plan pauses the API after about 15 minutes without visitors. The next
