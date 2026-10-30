@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Application, Company
 
 
+# Company data for the API, including how many applications it has.
 class CompanySerializer(serializers.ModelSerializer):
     application_count = serializers.IntegerField(read_only=True)
 
@@ -20,6 +21,7 @@ class CompanySerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "created_at", "updated_at")
 
+    # Company names must be unique per user, ignoring case.
     def validate_name(self, value: str) -> str:
         user = self.context["request"].user
         qs = Company.objects.filter(owner=user, name__iexact=value)
@@ -30,12 +32,14 @@ class CompanySerializer(serializers.ModelSerializer):
         return value
 
 
+# The short version of a company nested inside each application.
 class CompanySummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = ("id", "name", "website")
 
 
+# Application data for the API: reads return the company details, writes take a company_id.
 class ApplicationSerializer(serializers.ModelSerializer):
     company = CompanySummarySerializer(read_only=True)
     company_id = serializers.PrimaryKeyRelatedField(source="company", queryset=Company.objects.none(), write_only=True)
@@ -65,6 +69,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         if request is not None and request.user.is_authenticated:
             self.fields["company_id"].queryset = Company.objects.filter(owner=request.user)
 
+    # The minimum salary can't be higher than the maximum.
     def validate(self, attrs):
         # On PATCH, compare against the stored value for whichever side wasn't sent.
         salary_min = attrs.get("salary_min", getattr(self.instance, "salary_min", None))
@@ -74,11 +79,13 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return attrs
 
 
+# One row of the stats breakdown: a stage and how many applications are in it.
 class StatusCountSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Application.Status.choices)
     count = serializers.IntegerField()
 
 
+# The shape of the /api/applications/stats/ response.
 class ApplicationStatsSerializer(serializers.Serializer):
     total = serializers.IntegerField()
     by_status = StatusCountSerializer(many=True)

@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import F, Q
 
 
+# Adds created and updated timestamps to any model that inherits it.
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -11,6 +12,7 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+# A company the user is interested in; each user keeps their own list.
 class Company(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="companies")
     name = models.CharField(max_length=255)
@@ -18,6 +20,7 @@ class Company(TimeStampedModel):
     industry = models.CharField(max_length=120, blank=True)
     location = models.CharField(max_length=255, blank=True)
 
+    # Sort by name, and don't allow the same company name twice for one user.
     class Meta:
         ordering = ["name"]
         verbose_name_plural = "companies"
@@ -29,7 +32,9 @@ class Company(TimeStampedModel):
         return self.name
 
 
+# One job application: the role, its stage in the pipeline, salary range and notes.
 class Application(TimeStampedModel):
+    # The stages an application moves through.
     class Status(models.TextChoices):
         WISHLIST = "wishlist", "Wishlist"
         APPLIED = "applied", "Applied"
@@ -42,6 +47,7 @@ class Application(TimeStampedModel):
     SUBMITTED = {Status.APPLIED, Status.INTERVIEWING, Status.OFFER, Status.REJECTED}
     RESPONDED = {Status.INTERVIEWING, Status.OFFER}
 
+    # Each application belongs to one user and one of their companies.
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="applications")
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="applications")
     role_title = models.CharField(max_length=255)
@@ -52,6 +58,7 @@ class Application(TimeStampedModel):
     applied_on = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
+    # Newest first, with an index for the common "my applications in this stage" query.
     class Meta:
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["owner", "status"])]

@@ -5,6 +5,7 @@ import { useAuth } from "../auth.jsx";
 import Field from "../components/Field.jsx";
 import { Intro } from "./LoginPage.jsx";
 
+// Sign-up page: creates an account and logs straight in.
 export default function RegisterPage() {
   const { register } = useAuth();
   const [form, setForm] = useState({ full_name: "", email: "", password: "" });
@@ -12,8 +13,10 @@ export default function RegisterPage() {
   const [message, setMessage] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  // Keep the form state in sync with whatever the user types.
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Create the account; on failure, show the API's messages next to each field.
   async function onSubmit(e) {
     e.preventDefault();
     setBusy(true);
@@ -56,6 +59,7 @@ export default function RegisterPage() {
             onChange={onChange}
             errors={errors}
           />
+          {/* Only show a general error if no single field was to blame. */}
           {message && Object.keys(errors).length === 0 && (
             <p className="form-error" role="alert">
               {message}

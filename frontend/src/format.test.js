@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { formatDate, formatSalary } from "./format.js";
 
+// Salary ranges, including missing ends.
 describe("formatSalary", () => {
   it("shows a range", () => expect(formatSalary(100000, 120000)).toBe("$100,000 – $120,000"));
   it("handles one side missing", () => {
@@ -11,6 +12,7 @@ describe("formatSalary", () => {
   it("returns null when there's no salary", () => expect(formatSalary(null, null)).toBeNull());
 });
 
+// Dates from the API.
 describe("formatDate", () => {
   it("doesn't shift the day across time zones", () => expect(formatDate("2026-03-01")).toBe("Mar 1, 2026"));
   it("returns null for empty dates", () => expect(formatDate(null)).toBeNull());

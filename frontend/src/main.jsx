@@ -10,6 +10,7 @@ import "./styles.css";
 // The standalone demo runs inside an embedded page, where the address bar can't change, so it keeps pages in memory.
 const Router = IS_STANDALONE_DEMO ? MemoryRouter : BrowserRouter;
 
+// Mount the app with routing and login state available to every page.
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Router>

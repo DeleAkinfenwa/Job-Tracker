@@ -9,6 +9,7 @@ from accounts.models import User
 from .models import Application, Company
 
 
+# Shared setup: two users, with the first logged in and owning one company.
 class TrackerTestCase(APITestCase):
     def setUp(self):
         cache.clear()
@@ -25,6 +26,7 @@ class TrackerTestCase(APITestCase):
         return [a["role_title"] for a in self.client.get(url).data["results"]]
 
 
+# Company endpoints: ownership, unique names, search, paging and privacy.
 class CompanyTests(TrackerTestCase):
     def test_create_sets_owner(self):
         res = self.client.post(reverse("company-list"), {"name": "Globex", "website": "https://globex.example.com"})
@@ -71,6 +73,7 @@ class CompanyTests(TrackerTestCase):
         self.assertEqual(self.client.get(reverse("company-list")).data["count"], 0)
 
 
+# Application endpoints: validation, filters, sorting, stats and privacy.
 class ApplicationTests(TrackerTestCase):
     def test_create_includes_company_summary(self):
         res = self.create_app(salary_min=90000, salary_max=120000)

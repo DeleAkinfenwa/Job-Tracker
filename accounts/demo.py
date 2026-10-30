@@ -8,5 +8,6 @@ DEMO_EMAIL = "demo@example.com"
 DEMO_PASSWORD = "Demo-password-2026"
 
 
+# True if this is the shared demo account.
 def is_demo_user(user) -> bool:
     return getattr(user, "email", None) == DEMO_EMAIL

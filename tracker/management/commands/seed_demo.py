@@ -8,12 +8,14 @@ from accounts.demo import DEMO_EMAIL, DEMO_PASSWORD
 from accounts.models import User
 from tracker.models import Application, Company
 
+# Sample companies: name, website, industry, location.
 COMPANIES = [
     ("Northwind Analytics", "https://northwind.example.com", "Data", "Remote"),
     ("Blue Harbor Health", "https://blueharbor.example.com", "Healthcare", "Philadelphia, PA"),
     ("Lumen Robotics", "https://lumen.example.com", "Robotics", "New York, NY"),
 ]
 
+# Sample applications: company index, role, stage, salary range, days since applying.
 S = Application.Status
 APPLICATIONS = [
     (0, "Backend Engineer", S.INTERVIEWING, 110_000, 135_000, 12),
@@ -24,9 +26,11 @@ APPLICATIONS = [
 ]
 
 
+# `python manage.py seed_demo [--reset]` loads the demo account and its sample data.
 class Command(BaseCommand):
     help = "Load a demo user with sample companies and applications."
 
+    # Adds the --reset flag.
     def add_arguments(self, parser):
         parser.add_argument(
             "--reset",
@@ -34,8 +38,10 @@ class Command(BaseCommand):
             help="Delete the demo user and everything they own, then load fresh demo data.",
         )
 
+    # Runs in one transaction, so a failure never leaves half the demo data behind.
     @transaction.atomic
     def handle(self, *args, **options):
+        # Start fresh with --reset, otherwise leave existing demo data alone.
         existing = User.objects.filter(email=DEMO_EMAIL)
         if options["reset"]:
             existing.delete()  # companies and applications are removed by CASCADE
@@ -43,6 +49,7 @@ class Command(BaseCommand):
             self.stdout.write("Demo data already loaded.")
             return
 
+        # Create the demo user, their companies, then their applications.
         user = User.objects.create_user(email=DEMO_EMAIL, password=DEMO_PASSWORD, full_name="Demo User")
         companies = [
             Company.objects.create(owner=user, name=n, website=w, industry=i, location=loc)

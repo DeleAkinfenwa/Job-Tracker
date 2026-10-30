@@ -3,12 +3,14 @@ from django.contrib import admin
 from .models import Application, Company
 
 
+# Shows a company's applications inside the company's admin page.
 class ApplicationInline(admin.TabularInline):
     model = Application
     extra = 0
     fields = ("role_title", "status", "applied_on", "salary_min", "salary_max")
 
 
+# Admin list of companies, searchable by name or owner.
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ("name", "owner", "industry", "location", "created_at")
@@ -17,6 +19,7 @@ class CompanyAdmin(admin.ModelAdmin):
     inlines = [ApplicationInline]
 
 
+# Admin list of applications; the stage can be changed straight from the list.
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ("role_title", "company", "owner", "status", "applied_on", "salary_max")

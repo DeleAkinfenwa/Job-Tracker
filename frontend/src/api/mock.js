@@ -2,11 +2,13 @@
 // It mirrors the real API's responses and validation rules closely enough for visitors to try every feature
 // without a server. Data lives in memory and resets when the page reloads.
 
+// Demo login, every stage, and the stage groups used for the response rate.
 const DEMO = { email: "demo@example.com", password: "Demo-password-2026" };
 const STATUSES = ["wishlist", "applied", "interviewing", "offer", "rejected", "withdrawn"];
 const SUBMITTED = ["applied", "interviewing", "offer", "rejected"];
 const RESPONDED = ["interviewing", "offer"];
 
+// Error shaped like the real client's ApiError, so pages handle both the same way.
 class MockError extends Error {
   constructor(status, body) {
     super(body.detail ?? "Please check the highlighted fields.");
@@ -15,6 +17,7 @@ class MockError extends Error {
   }
 }
 
+// Date helpers: a "YYYY-MM-DD" date n days back, and the current timestamp.
 const daysAgo = (n) => {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -22,17 +25,20 @@ const daysAgo = (n) => {
 };
 const now = () => new Date().toISOString();
 
+// In-memory "database": an id counter, all users, and who is logged in.
 let nextId = 1;
 const id = () => nextId++;
 const users = [];
 let current = null;
 
+// Adds a user with their own empty lists of companies and applications.
 function createUser(email, password, fullName) {
   const user = { id: id(), email, password, full_name: fullName, date_joined: now(), companies: [], applications: [] };
   users.push(user);
   return user;
 }
 
+// Creates the demo user with some sample companies and applications.
 function seedDemo() {
   const user = createUser(DEMO.email, DEMO.password, "Demo User");
   const companies = [
@@ -65,22 +71,27 @@ function seedDemo() {
 }
 seedDemo();
 
+// Waits briefly so the demo feels like a real network call.
 const delay = (value) => new Promise((resolve) => setTimeout(() => resolve(value), 120));
 
+// Returns the logged-in user, or fails like the API does without a token.
 function me() {
   if (!current) throw new MockError(401, { detail: "Authentication credentials were not provided." });
   return current;
 }
 
+// A company as the API returns it, with its application count.
 function companyView(user, c) {
   return { ...c, application_count: user.applications.filter((a) => a.company_id === c.id).length };
 }
 
+// An application as the API returns it, with its company details nested in.
 function appView(user, a) {
   const c = user.companies.find((x) => x.id === a.company_id);
   return { ...a, company: { id: c.id, name: c.name, website: c.website } };
 }
 
+// Same company rules as the API: a name that's unique per user, and a valid website.
 function validateCompany(user, data, existingId) {
   const errors = {};
   const name = (data.name ?? "").trim();
@@ -92,6 +103,7 @@ function validateCompany(user, data, existingId) {
   return { ...data, name };
 }
 
+// Same application rules as the API: own company, a title, a valid stage, link and salary range.
 function validateApplication(user, data, existing = {}) {
   const merged = { ...existing, ...data };
   const errors = {};
@@ -105,6 +117,7 @@ function validateApplication(user, data, existing = {}) {
   return merged;
 }
 
+// Runs a handler after the fake delay, turning thrown errors into rejected promises.
 const run = (fn) =>
   delay().then(() => {
     try {
@@ -114,9 +127,11 @@ const run = (fn) =>
     }
   });
 
+// Same functions as the real API in endpoints.js.
 export const mockApi = {
   health: () => Promise.resolve({ status: "ok" }),
 
+  // Accounts: log in, sign up, and fetch the current user.
   login: (email, password) =>
     run(() => {
       const user = users.find((u) => u.email === email.toLowerCase() && u.password === password);
@@ -141,6 +156,7 @@ export const mockApi = {
       return { id: u.id, email: u.email, full_name: u.full_name, date_joined: u.date_joined, is_demo: u.email === DEMO.email };
     }),
 
+  // Companies: list (A to Z), create, edit and delete.
   listCompanies: () =>
     run(() => {
       const u = me();
@@ -169,6 +185,7 @@ export const mockApi = {
       return null;
     }),
 
+  // Applications: list with search, stage filter and sorting.
   listApplications: ({ search = "", status = "", ordering = "-created_at" } = {}) =>
     run(() => {
       const u = me();
@@ -191,6 +208,7 @@ export const mockApi = {
         .filter((a) => !q || [a.role_title, a.notes, a.company.name].some((t) => t.toLowerCase().includes(q)))
         .sort(compare);
     }),
+  // Single applications: fetch, create, edit and delete.
   getApplication: (appId) =>
     run(() => {
       const u = me();
@@ -219,6 +237,7 @@ export const mockApi = {
       u.applications = u.applications.filter((a) => a.id !== Number(appId));
       return null;
     }),
+  // Totals per stage and the response rate, matching the API's stats endpoint.
   stats: () =>
     run(() => {
       const u = me();

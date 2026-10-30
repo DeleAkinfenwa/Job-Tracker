@@ -13,6 +13,7 @@ const SORTABLE = {
   added: { label: "Added", field: "created_at", firstDirection: "-" },
 };
 
+// A clickable column header that cycles between sort directions.
 function SortHeader({ column, ordering, onSort }) {
   const { label, field, firstDirection } = SORTABLE[column];
   const current = ordering.replace(/^-/, "") === field ? (ordering.startsWith("-") ? "descending" : "ascending") : "none";
@@ -30,6 +31,7 @@ function SortHeader({ column, ordering, onSort }) {
   );
 }
 
+// The main page: summary panel, search and filters, then the table of applications.
 export default function ApplicationsPage() {
   const navigate = useNavigate();
   const [apps, setApps] = useState(null);
@@ -39,6 +41,7 @@ export default function ApplicationsPage() {
   const [ordering, setOrdering] = useState("-created_at");
   const [error, setError] = useState(null);
 
+  // Refresh the summary numbers.
   const loadStats = useCallback(() => api.stats().then(setStats), []);
 
   useEffect(() => {
@@ -52,10 +55,12 @@ export default function ApplicationsPage() {
     return () => clearTimeout(timer);
   }, [search, status, ordering]);
 
+  // Load the summary numbers once when the page opens.
   useEffect(() => {
     loadStats().catch(() => {});
   }, [loadStats]);
 
+  // Change a stage straight from the table, rolling back if the API refuses.
   async function changeStatus(app, newStatus) {
     const previous = apps;
     setApps(apps.map((a) => (a.id === app.id ? { ...a, status: newStatus, updated_at: new Date().toISOString() } : a)));
@@ -72,6 +77,7 @@ export default function ApplicationsPage() {
 
   return (
     <>
+      {/* Page title and "Add application" button. */}
       <div className="page-header">
         <div>
           <h1>Applications</h1>
@@ -84,6 +90,7 @@ export default function ApplicationsPage() {
 
       <PipelineSummary stats={stats} activeStatus={status} onSelect={setStatus} />
 
+      {/* Search box, stage filter and sort order. */}
       <div className="toolbar">
         <input
           type="search"
@@ -122,6 +129,7 @@ export default function ApplicationsPage() {
         </p>
       )}
 
+      {/* Loading message, empty states, or the table of applications. */}
       {apps === null ? (
         <p className="page-message">Loading applications…</p>
       ) : apps.length === 0 ? (
@@ -165,6 +173,7 @@ export default function ApplicationsPage() {
             </thead>
             <tbody>
               {apps.map((app) => (
+                // Clicking anywhere on a row opens it, except on the stage menu or link.
                 <tr key={app.id} onClick={(e) => e.target.closest("select, a") || navigate(`/applications/${app.id}`)}>
                   <td className="cell-role">
                     <div className="role-stack">

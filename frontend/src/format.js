@@ -1,11 +1,14 @@
+// Formats numbers as whole US dollars, e.g. $120,000.
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
+// Turns a salary range into text like "$100,000 – $120,000", or null if none was given.
 export function formatSalary(min, max) {
   if (min == null && max == null) return null;
   if (min != null && max != null) return `${money.format(min)} – ${money.format(max)}`;
   return min != null ? `From ${money.format(min)}` : `Up to ${money.format(max)}`;
 }
 
+// Turns "2026-03-14" into "Mar 14, 2026".
 export function formatDate(iso) {
   if (!iso) return null;
   // Dates from the API are plain "YYYY-MM-DD"; read them as local dates so they don't shift a day.

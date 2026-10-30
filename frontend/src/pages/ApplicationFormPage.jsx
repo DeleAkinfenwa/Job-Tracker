@@ -5,8 +5,10 @@ import { api, STATUSES } from "../api/endpoints.js";
 import ConfirmButton from "../components/ConfirmButton.jsx";
 import Field from "../components/Field.jsx";
 
+// Menu value meaning "create a new company with this application".
 const NEW_COMPANY = "new";
 
+// A blank application form.
 const EMPTY = {
   company_id: "",
   new_company: "",
@@ -34,6 +36,7 @@ function toPayload(form, companyId) {
   };
 }
 
+// Turns an application from the API into form values.
 function fromApplication(app) {
   return {
     ...EMPTY,
@@ -48,6 +51,7 @@ function fromApplication(app) {
   };
 }
 
+// Add or edit one application; the same page handles both, depending on the URL.
 export default function ApplicationFormPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -59,6 +63,7 @@ export default function ApplicationFormPage() {
   const [message, setMessage] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  // Load the company list, and the application too when editing.
   useEffect(() => {
     Promise.all([api.listCompanies(), isEdit ? api.getApplication(id) : null])
       .then(([companyList, app]) => {
@@ -69,8 +74,10 @@ export default function ApplicationFormPage() {
       .catch((err) => setMessage(err.status === 404 ? "This application doesn't exist." : err.message));
   }, [id, isEdit]);
 
+  // Keep the form state in sync with whatever the user types.
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Save the application, creating a new company first if one was typed in.
   async function onSubmit(e) {
     e.preventDefault();
     setBusy(true);
@@ -102,6 +109,7 @@ export default function ApplicationFormPage() {
     }
   }
 
+  // Delete this application and go back to the list.
   async function onDelete() {
     try {
       await api.deleteApplication(id);
@@ -111,6 +119,7 @@ export default function ApplicationFormPage() {
     }
   }
 
+  // Wait for the data before showing the form.
   if (companies === null) return <p className="page-message">{message ?? "Loading…"}</p>;
 
   return (
@@ -121,6 +130,7 @@ export default function ApplicationFormPage() {
       <h1>{isEdit ? "Edit application" : "Add an application"}</h1>
 
       <form className="card form-card" onSubmit={onSubmit}>
+        {/* Company picker, with a name box when adding a new company. */}
         <div className="grid-2">
           <Field label="Company" name="company_id" as="select" value={form.company_id} onChange={onChange} errors={errors}>
             {companies.map((c) => (
@@ -144,6 +154,7 @@ export default function ApplicationFormPage() {
           )}
         </div>
 
+        {/* Job title and stage. */}
         <div className="grid-2">
           <Field label="Job title" name="role_title" required value={form.role_title} onChange={onChange} errors={errors} />
           <Field label="Stage" name="status" as="select" value={form.status} onChange={onChange} errors={errors}>
@@ -155,6 +166,7 @@ export default function ApplicationFormPage() {
           </Field>
         </div>
 
+        {/* Salary range. */}
         <div className="grid-2">
           <Field
             label="Salary from (USD per year)"
@@ -178,6 +190,7 @@ export default function ApplicationFormPage() {
           />
         </div>
 
+        {/* Date applied and job link. */}
         <div className="grid-2">
           <Field label="Date applied" name="applied_on" type="date" value={form.applied_on} onChange={onChange} errors={errors} />
           <Field
@@ -199,6 +212,7 @@ export default function ApplicationFormPage() {
           </p>
         )}
 
+        {/* Delete (when editing), cancel and save. */}
         <div className="form-actions">
           {isEdit && (
             <ConfirmButton question="Delete this application?" onConfirm={onDelete} />

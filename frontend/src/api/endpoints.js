@@ -2,8 +2,10 @@
 import { request, requestAll } from "./client.js";
 import { mockApi } from "./mock.js";
 
+// The demo account's login, used by the "Explore the demo" button.
 export const DEMO_CREDENTIALS = { email: "demo@example.com", password: "Demo-password-2026" };
 
+// Every stage an application can be in, in pipeline order.
 export const STATUSES = [
   { value: "wishlist", label: "Wishlist" },
   { value: "applied", label: "Applied" },
@@ -13,15 +15,20 @@ export const STATUSES = [
   { value: "withdrawn", label: "Withdrawn" },
 ];
 
+// Turns a stage value like "interviewing" into its display label.
 export const statusLabel = (value) => STATUSES.find((s) => s.value === value)?.label ?? value;
 
+// Calls to the real Django API.
 const realApi = {
+  // Public check that the server is up.
   health: () => request("/health/", { auth: false }),
 
+  // Accounts: log in, sign up, and fetch the current user.
   login: (email, password) => request("/api/auth/token/", { method: "POST", body: { email, password }, auth: false }),
   register: (data) => request("/api/auth/register/", { method: "POST", body: data, auth: false }),
   me: () => request("/api/auth/me/"),
 
+  // Companies: list, create, edit and delete.
   listCompanies: () => requestAll("/api/companies/"),
   createCompany: (data) => request("/api/companies/", { method: "POST", body: data }),
   updateCompany: (id, data) => request(`/api/companies/${id}/`, { method: "PATCH", body: data }),
@@ -36,6 +43,7 @@ const realApi = {
     const query = params.toString();
     return requestAll(`/api/applications/${query ? `?${query}` : ""}`);
   },
+  // Single applications, plus the numbers for the summary panel.
   getApplication: (id) => request(`/api/applications/${id}/`),
   createApplication: (data) => request("/api/applications/", { method: "POST", body: data }),
   updateApplication: (id, data) => request(`/api/applications/${id}/`, { method: "PATCH", body: data }),

@@ -5,6 +5,7 @@ from rest_framework.filters import OrderingFilter
 from .models import Application
 
 
+# Extra query filters for applications: stage, company, date range and minimum salary.
 class ApplicationFilter(django_filters.FilterSet):
     applied_after = django_filters.DateFilter(field_name="applied_on", lookup_expr="gte")
     applied_before = django_filters.DateFilter(field_name="applied_on", lookup_expr="lte")
@@ -26,8 +27,10 @@ class NullsLastOrderingFilter(OrderingFilter):
         ordering = self.get_ordering(request, queryset, view)
         if not ordering:
             return queryset
+        # Turn each "field" or "-field" into an ascending or descending sort with empty values last.
         expressions = [
             F(field[1:]).desc(nulls_last=True) if field.startswith("-") else F(field).asc(nulls_last=True)
             for field in ordering
         ]
+        # Sort by id last so the order is stable across pages.
         return queryset.order_by(*expressions, "id")
