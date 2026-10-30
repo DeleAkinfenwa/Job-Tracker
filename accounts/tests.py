@@ -12,6 +12,7 @@ from .models import User
 PASSWORD = "Tracker-pass-2026"
 
 
+# Sign-up, login, token refresh and access control.
 class AuthTests(APITestCase):
     def setUp(self):
         cache.clear()  # reset throttle counters between tests
@@ -75,6 +76,7 @@ class AuthTests(APITestCase):
         self.assertEqual(self.client.get(reverse("health")).json(), {"status": "ok", "database": "ok"})
 
 
+# The shared demo account: flagged, read-only profile, and resettable.
 class DemoAccountTests(APITestCase):
     def setUp(self):
         cache.clear()

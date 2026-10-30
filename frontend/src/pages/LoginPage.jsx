@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
 import Field from "../components/Field.jsx";
 
+// The short pitch shown beside the login and sign-up forms.
 export function Intro() {
   return (
     <section className="intro">
@@ -21,12 +22,14 @@ export function Intro() {
   );
 }
 
+// Login page: one-click demo access, or log in with email and password.
 export default function LoginPage() {
   const { login, loginAsDemo } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null); // "demo" | "login" | null
 
+  // Runs a login action, showing which button is busy and any error.
   async function run(kind, action) {
     setBusy(kind);
     setError(null);
@@ -38,12 +41,14 @@ export default function LoginPage() {
     }
   }
 
+  // Keep the form state in sync with whatever the user types.
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   return (
     <div className="auth-page">
       <Intro />
       <section className="card auth-card">
+        {/* One-click demo login. */}
         <h2>Try it out</h2>
         <p className="muted">No sign-up needed. The demo account comes with sample data.</p>
         <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={() => run("demo", loginAsDemo)}>
@@ -52,6 +57,7 @@ export default function LoginPage() {
 
         <div className="divider">or log in</div>
 
+        {/* Regular email and password login. */}
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import MeView, RegisterView
 
+# Sign up, get and refresh JWT tokens, and view the current user.
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

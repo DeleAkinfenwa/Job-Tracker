@@ -4,16 +4,20 @@ import { api } from "../api/endpoints.js";
 import ConfirmButton from "../components/ConfirmButton.jsx";
 import Field from "../components/Field.jsx";
 
+// A blank company form.
 const EMPTY = { name: "", website: "", industry: "", location: "" };
 
+// One form for both adding a new company and editing an existing one.
 function CompanyForm({ initial, onSaved, onCancel }) {
   const [form, setForm] = useState(initial ?? EMPTY);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const isEdit = Boolean(initial?.id);
 
+  // Keep the form state in sync with whatever the user types.
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Save the company, then clear the form and tell the page to reload the list.
   async function onSubmit(e) {
     e.preventDefault();
     setBusy(true);
@@ -62,11 +66,13 @@ function CompanyForm({ initial, onSaved, onCancel }) {
   );
 }
 
+// The companies page: the add/edit form above a list of saved companies.
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState(null);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState(null);
 
+  // Fetch the company list from the API.
   const load = () =>
     api
       .listCompanies()
@@ -77,6 +83,7 @@ export default function CompaniesPage() {
     load();
   }, []);
 
+  // Delete a company (and its applications), then reload the list.
   async function onDelete(company) {
     try {
       await api.deleteCompany(company.id);
@@ -92,6 +99,7 @@ export default function CompaniesPage() {
         <h1>Companies</h1>
       </div>
 
+      {/* The key resets the form whenever a different company is picked for editing. */}
       <CompanyForm
         key={editing?.id ?? "new"}
         initial={editing}
@@ -108,6 +116,7 @@ export default function CompaniesPage() {
         </p>
       )}
 
+      {/* Loading message, empty state, or one card per company. */}
       {companies === null ? (
         <p className="page-message">Loading companies…</p>
       ) : companies.length === 0 ? (
@@ -131,6 +140,7 @@ export default function CompaniesPage() {
               <div className="company-count">
                 {c.application_count} application{c.application_count === 1 ? "" : "s"}
               </div>
+              {/* Edit scrolls up to the form; delete asks to confirm first. */}
               <div className="company-actions">
                 <button type="button" className="btn btn-ghost" onClick={() => {
                     setEditing(c);

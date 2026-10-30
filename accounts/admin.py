@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User
 
 
+# Admin screens for users, set up for email login instead of username.
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     ordering = ("email",)

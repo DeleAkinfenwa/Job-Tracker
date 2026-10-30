@@ -18,9 +18,11 @@ class MeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     http_method_names = ["get", "patch"]
 
+    # Always the logged-in user, so nobody can view or edit someone else's profile.
     def get_object(self):
         return self.request.user
 
+    # Block profile edits on the shared demo account.
     def perform_update(self, serializer):
         if is_demo_user(self.request.user):
             raise PermissionDenied("The demo account's profile can't be changed.")

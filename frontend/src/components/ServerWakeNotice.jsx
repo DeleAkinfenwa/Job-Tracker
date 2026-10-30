@@ -8,6 +8,7 @@ export default function ServerWakeNotice({ delayMs = 2500 }) {
   const [state, setState] = useState("checking"); // checking | slow | down | ok
 
   useEffect(() => {
+    // Only show the notice if the server hasn't answered after a short wait.
     let done = false;
     const timer = setTimeout(() => !done && setState("slow"), delayMs);
 
@@ -26,6 +27,7 @@ export default function ServerWakeNotice({ delayMs = 2500 }) {
     return () => clearTimeout(timer);
   }, [delayMs]);
 
+  // Server is slow: show a spinner and explain why.
   if (state === "slow") {
     return (
       <div className="notice" role="status">
@@ -35,6 +37,7 @@ export default function ServerWakeNotice({ delayMs = 2500 }) {
       </div>
     );
   }
+  // Server never answered: show an error.
   if (state === "down") {
     return (
       <div className="notice notice-error" role="alert">
@@ -42,5 +45,6 @@ export default function ServerWakeNotice({ delayMs = 2500 }) {
       </div>
     );
   }
+  // Server is up: show nothing.
   return null;
 }

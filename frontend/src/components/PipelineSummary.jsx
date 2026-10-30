@@ -4,9 +4,11 @@ import { STATUSES } from "../api/endpoints.js";
 export default function PipelineSummary({ stats, activeStatus, onSelect }) {
   if (!stats) return <section className="summary card summary-loading" aria-busy="true" />;
 
+  // How many applications are in a given stage.
   const count = (status) => stats.by_status.find((s) => s.status === status)?.count ?? 0;
   const active = count("applied") + count("interviewing");
 
+  // The headline numbers shown across the top.
   const figures = [
     { label: "Applications", value: stats.total },
     { label: "In progress", value: active, hint: "Applied or interviewing" },
@@ -20,6 +22,7 @@ export default function PipelineSummary({ stats, activeStatus, onSelect }) {
 
   return (
     <section className="summary card" aria-label="Summary of your job search">
+      {/* Headline numbers. */}
       <dl className="figures">
         {figures.map((f) => (
           <div key={f.label} className="figure" title={f.hint}>
@@ -31,6 +34,7 @@ export default function PipelineSummary({ stats, activeStatus, onSelect }) {
 
       {stats.total > 0 && (
         <div className="pipeline">
+          {/* One coloured bar, each segment sized by how many applications are in that stage. */}
           <div className="pipeline-bar" role="img" aria-label="Applications by stage">
             {STATUSES.filter((s) => count(s.value) > 0).map((s) => (
               <span
@@ -41,6 +45,7 @@ export default function PipelineSummary({ stats, activeStatus, onSelect }) {
               />
             ))}
           </div>
+          {/* Legend buttons double as stage filters; clicking the active one clears it. */}
           <div className="pipeline-legend" role="group" aria-label="Filter by stage">
             {STATUSES.map((s) => (
               <button

@@ -2,8 +2,10 @@
 // It adds the login token to each request, and when the short-lived access token
 // expires it quietly swaps the refresh token for a new one and retries once.
 
+// Where the API lives; set VITE_API_URL to point at the deployed server.
 export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
+// Keys the tokens are saved under in the browser.
 const ACCESS_KEY = "jobtracker.access";
 const REFRESH_KEY = "jobtracker.refresh";
 
@@ -35,6 +37,7 @@ const storage = {
   },
 };
 
+// Read, save and clear the access and refresh tokens.
 export const tokens = {
   get access() {
     return storage.get(ACCESS_KEY);
@@ -61,6 +64,7 @@ export class ApiError extends Error {
   }
 }
 
+// Picks the best single message to show from an API error response.
 function messageFrom(body) {
   if (!body || typeof body !== "object") return null;
   if (typeof body.detail === "string") return body.detail;
@@ -75,6 +79,7 @@ export function setSessionExpiredHandler(handler) {
 }
 
 let refreshing = null;
+// Swaps the refresh token for a new access token; resolves true if it worked.
 async function refreshAccessToken() {
   // If several requests fail at once, they all wait for the same refresh.
   refreshing ??= fetch(`${API_URL}/api/auth/token/refresh/`, {
@@ -94,6 +99,7 @@ async function refreshAccessToken() {
   return refreshing;
 }
 
+// Sends one request to the API, adding the token and retrying once after a refresh.
 export async function request(path, { method = "GET", body, auth = true, retry = true } = {}) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -105,12 +111,14 @@ export async function request(path, { method = "GET", body, auth = true, retry =
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
+  // An expired token gets one refresh-and-retry; if that fails, the user is logged out.
   if (res.status === 401 && auth && retry && tokens.refresh) {
     if (await refreshAccessToken()) return request(path, { method, body, auth, retry: false });
     tokens.clear();
     onSessionExpired();
   }
 
+  // 204 means success with no body (e.g. after a delete).
   if (res.status === 204) return null;
   const data = await res.json().catch(() => null);
   if (!res.ok) throw new ApiError(res.status, data);

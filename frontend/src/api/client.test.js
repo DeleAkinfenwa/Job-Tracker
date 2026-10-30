@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError, request, requestAll, setSessionExpiredHandler, tokens } from "./client.js";
 
+// Builds a fake fetch response with the given status and JSON body.
 const json = (status, body) => new Response(body === undefined ? null : JSON.stringify(body), { status });
 
+// Tokens, automatic refresh, and error handling.
 describe("request", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -58,6 +60,7 @@ describe("request", () => {
   });
 });
 
+// Loading every page of a paginated list.
 describe("requestAll", () => {
   afterEach(() => vi.unstubAllGlobals());
 

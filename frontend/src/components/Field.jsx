@@ -2,6 +2,7 @@
 export default function Field({ label, name, errors = {}, as = "input", children, hint, ...props }) {
   const Tag = as;
   const id = `field-${name}`;
+  // The API sends errors as a list of messages; join them into one line.
   const error = errors[name]?.join?.(" ") ?? errors[name];
 
   return (

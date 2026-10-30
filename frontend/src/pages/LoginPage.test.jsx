@@ -5,9 +5,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import LoginPage from "./LoginPage.jsx";
 
+// Replace the real login state with mock functions.
 const auth = { login: vi.fn(), loginAsDemo: vi.fn() };
 vi.mock("../auth.jsx", () => ({ useAuth: () => auth }));
 
+// Render the login page inside a router.
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -15,6 +17,7 @@ const renderPage = () =>
     </MemoryRouter>,
   );
 
+// Demo button and error messages.
 describe("LoginPage", () => {
   it("logs in to the demo with one click", async () => {
     renderPage();
