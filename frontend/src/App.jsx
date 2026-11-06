@@ -8,6 +8,7 @@ import ApplicationsPage from "./pages/ApplicationsPage.jsx";
 import CompaniesPage from "./pages/CompaniesPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
+import ResumeAgentPage from "./pages/ResumeAgentPage.jsx";
 
 // Only lets logged-in users through; everyone else is sent to the login page.
 function RequireLogin({ children }) {
@@ -20,6 +21,12 @@ function RequireLogin({ children }) {
 function GuestOnly({ children }) {
   const { user } = useAuth();
   return user ? <Navigate to="/" replace /> : children;
+}
+
+// The resume agent page is only for its owner; anyone else is sent back to the applications list.
+function RequireAgent({ children }) {
+  const { user } = useAuth();
+  return user?.agent_enabled ? children : <Navigate to="/" replace />;
 }
 
 // The app's pages and which URL shows each one.
@@ -43,6 +50,14 @@ export default function App() {
           <Route path="applications/new" element={<ApplicationFormPage />} />
           <Route path="applications/:id" element={<ApplicationFormPage />} />
           <Route path="companies" element={<CompaniesPage />} />
+          <Route
+            path="agent"
+            element={
+              <RequireAgent>
+                <ResumeAgentPage />
+              </RequireAgent>
+            }
+          />
         </Route>
         {/* Any unknown URL goes back to the applications list. */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -100,7 +100,8 @@ async function refreshAccessToken() {
 }
 
 // Sends one request to the API, adding the token and retrying once after a refresh.
-export async function request(path, { method = "GET", body, auth = true, retry = true } = {}) {
+// Pass blob: true to get a file (such as a Word document) back instead of JSON.
+export async function request(path, { method = "GET", body, auth = true, retry = true, blob = false } = {}) {
   const headers = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (auth && tokens.access) headers.Authorization = `Bearer ${tokens.access}`;
@@ -113,13 +114,14 @@ export async function request(path, { method = "GET", body, auth = true, retry =
 
   // An expired token gets one refresh-and-retry; if that fails, the user is logged out.
   if (res.status === 401 && auth && retry && tokens.refresh) {
-    if (await refreshAccessToken()) return request(path, { method, body, auth, retry: false });
+    if (await refreshAccessToken()) return request(path, { method, body, auth, retry: false, blob });
     tokens.clear();
     onSessionExpired();
   }
 
   // 204 means success with no body (e.g. after a delete).
   if (res.status === 204) return null;
+  if (blob && res.ok) return res.blob();
   const data = await res.json().catch(() => null);
   if (!res.ok) throw new ApiError(res.status, data);
   return data;

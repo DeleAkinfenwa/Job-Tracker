@@ -1,0 +1,69 @@
+# Starter profile. Replace the example details with your own.
+# Titles, dates, certifications, and education are copied exactly as written here.
+# Bullets under each role are imported once as starting evidence (run: resume-agent import-profile).
+
+contact:
+  name: Jordan Example
+  location: Philadelphia, PA
+  phone: (555) 555-0100
+  email: jordan@example.com
+  website: example.com
+
+summary_base: >-
+  Software engineer with experience in cloud infrastructure and full-stack web development.
+
+roles:
+  - key: acme
+    company: Acme Corp
+    title: Cloud Engineer
+    start: Jan 2024
+    end: Present
+    bullets:
+      - Automated Azure infrastructure deployments with Terraform for three product teams.
+      - Containerized internal services with Docker and deployed them to Kubernetes.
+
+  - key: startup
+    company: Startup Inc
+    title: Software Developer
+    start: Jun 2022
+    end: Dec 2023
+    bullets:
+      - Built React and Node.js features for a customer billing portal.
+      - Wrote PostgreSQL queries and REST APIs for reporting dashboards.
+
+skills:
+  - category: Cloud & Infrastructure
+    items: [Azure, Terraform, Docker, Kubernetes]
+  - category: Languages & Frameworks
+    items: [Python, JavaScript, React, Node.js, REST APIs]
+  - category: Databases
+    items: [PostgreSQL, SQL]
+
+certifications:
+  - "AZ-900 Microsoft Certified: Azure Fundamentals"
+
+projects:
+  - name: Portfolio Site
+    stack: React, Netlify
+    link: example.com
+    description: Built and deployed a personal site with automatic deployments from Git.
+
+education:
+  - credential: B.S. in Computer Science
+    school: Example University
+    dates: 2018 - 2022
+
+depth_notes:
+  - No experience with Kafka.
+
+# Limits are depth notes written as rules the code enforces after the AI answers.
+# Anything that breaks one is removed from the resume and listed in the report.
+limits:
+  max_years_experience: 3          # leave this out to use the total of your non-optional roles
+  never_lead: [billing portal]     # team efforts: never paired with led, owned, managed, and so on
+  never_claim: [security clearance]
+  no_experience: [Kafka]
+  context_rules:
+    - term: PostgreSQL
+      require_any: [queries, reporting]
+      reason: PostgreSQL work was queries for reporting

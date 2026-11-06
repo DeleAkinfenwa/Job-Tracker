@@ -7,5 +7,9 @@ extend-exclude = ["*/migrations/*"]
 select = ["E", "F", "I", "B", "UP", "DJ"]
 ignore = ["DJ001"]  # blank=True CharFields without null are the Django-recommended pattern
 
+[tool.ruff.lint.per-file-ignores]
+# The AI instructions are prose; one rule per line reads better than wrapped strings.
+"agent/engine/prompts.py" = ["E501"]
+
 [tool.ruff.lint.isort]
-known-first-party = ["accounts", "config", "tracker"]
+known-first-party = ["accounts", "agent", "config", "tracker"]

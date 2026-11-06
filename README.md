@@ -47,7 +47,9 @@ All three run on free hosting: the website on **Netlify**, the API on **Render**
 - **Data rules enforced twice**: the API gives clear error messages (like "The minimum salary can't be higher than
   the maximum"), and the database itself refuses bad data as a second line of defence.
 - **A shared demo account** that resets itself automatically, so every visitor gets a clean demo.
-- **44 automated tests** (32 for the API, 12 for the website) that run on every change with GitHub Actions.
+- **A private resume agent** that writes a resume for a job posting from my own career log, then checks every claim
+  against that log and removes anything it can't back up. Only the owner's account can use it (see below).
+- **95 automated tests** (77 for the API, 18 for the website) that run on every change with GitHub Actions.
 - **Interactive API documentation** generated automatically with Swagger.
 - **Works on phones**, and supports dark mode.
 
@@ -76,6 +78,8 @@ tracker/
   filters.py           FilterSet and nulls-last ordering
   management/commands/seed_demo.py   Loads (or resets) the demo account
   tests.py             API tests
+agent/                 Resume agent: owner-only lock (access.py), models, daily caps (services.py), views
+  engine/              Prompts, the accuracy check (guard.py, tailor.py) and the Word file writer; no Django inside
 frontend/
   src/api/             fetch wrapper with token refresh, one function per endpoint
   src/pages/           Login, sign-up, applications table, application form, companies
@@ -181,6 +185,26 @@ a migration drift check and OpenAPI schema validation, then tests and builds the
 ### Deploying
 
 See [DEPLOY.md](DEPLOY.md) for a step-by-step guide to hosting the whole project for free.
+
+### Resume agent (owner only)
+
+The **Resume agent** page turns a career log into resumes tailored to one job posting. The AI writes a draft, then
+code checks each claim against the log: every bullet must cite log entries from the same job, and numbers, tools,
+leadership words, years of experience and the profile's own limits are all checked. Anything unsupported is removed and
+listed, and the result downloads as a Word file that applicant tracking systems can read.
+
+It calls the Anthropic API with the owner's key, so it is locked down:
+
+- **One account.** Only emails in the `AGENT_OWNER_EMAILS` setting can use it. Every other account, including the
+  demo, gets a 404 from every `/api/agent/` endpoint and never sees the page. Leave the setting empty to turn it off.
+- **The owner's email can't be claimed.** Sign-up refuses any email in `AGENT_OWNER_EMAILS`.
+- **The key stays on the server.** `ANTHROPIC_API_KEY` is read by Django only; the website never receives it.
+- **Spending caps.** `AGENT_DAILY_RUN_LIMIT` (default 25) and `AGENT_DAILY_TOKEN_LIMIT` (default 600,000) per day,
+  one run at a time, and a stricter rate limit on agent endpoints.
+- **Personal data stays out of the repo.** The profile and career log live in the owner's account in the database.
+  The tests use a made-up profile.
+
+To try it locally without a key, set `AGENT_OWNER_EMAILS` to your account's email and `AGENT_PROVIDER=mock`.
 
 ### Design decisions
 

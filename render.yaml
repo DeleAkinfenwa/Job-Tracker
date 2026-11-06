@@ -16,3 +16,8 @@ services:
       # The deployed frontend's URL, e.g. https://job-tracker.netlify.app
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      # Resume agent: set both in the dashboard. Leave AGENT_OWNER_EMAILS empty to turn the agent off.
+      - key: AGENT_OWNER_EMAILS
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

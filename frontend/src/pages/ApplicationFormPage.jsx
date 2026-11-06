@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { api, STATUSES } from "../api/endpoints.js";
+import { useAuth } from "../auth.jsx";
 import ConfirmButton from "../components/ConfirmButton.jsx";
 import Field from "../components/Field.jsx";
 
@@ -56,6 +57,7 @@ export default function ApplicationFormPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [companies, setCompanies] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -127,7 +129,14 @@ export default function ApplicationFormPage() {
       <Link to="/" className="back-link">
         ← Back to applications
       </Link>
-      <h1>{isEdit ? "Edit application" : "Add an application"}</h1>
+      <div className="page-header">
+        <h1>{isEdit ? "Edit application" : "Add an application"}</h1>
+        {isEdit && user?.agent_enabled && (
+          <Link to={`/agent?application=${id}`} className="btn">
+            Tailor a resume for this job
+          </Link>
+        )}
+      </div>
 
       <form className="card form-card" onSubmit={onSubmit}>
         {/* Company picker, with a name box when adding a new company. */}

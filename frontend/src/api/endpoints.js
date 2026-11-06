@@ -49,6 +49,24 @@ const realApi = {
   updateApplication: (id, data) => request(`/api/applications/${id}/`, { method: "PATCH", body: data }),
   deleteApplication: (id) => request(`/api/applications/${id}/`, { method: "DELETE" }),
   stats: () => request("/api/applications/stats/"),
+
+  // Resume agent (only works for the account set in AGENT_OWNER_EMAILS on the server).
+  agentStatus: () => request("/api/agent/status/"),
+  agentProfile: () => request("/api/agent/profile/"),
+  saveAgentProfile: (yaml) => request("/api/agent/profile/", { method: "PUT", body: { yaml } }),
+  listEntries: () => request("/api/agent/entries/"),
+  logEntry: (data) => request("/api/agent/entries/", { method: "POST", body: data }),
+  updateEntry: (id, data) => request(`/api/agent/entries/${id}/`, { method: "PATCH", body: data }),
+  deleteEntry: (id) => request(`/api/agent/entries/${id}/`, { method: "DELETE" }),
+  importProfileBullets: () => request("/api/agent/entries/import_profile/", { method: "POST" }),
+  importEntries: (entries, replace) =>
+    request("/api/agent/entries/import_json/", { method: "POST", body: { entries, replace } }),
+  listRuns: () => requestAll("/api/agent/runs/"),
+  getRun: (id) => request(`/api/agent/runs/${id}/`),
+  checkFit: (data) => request("/api/agent/runs/evaluate/", { method: "POST", body: data }),
+  tailorResume: (data) => request("/api/agent/runs/tailor/", { method: "POST", body: data }),
+  resumeText: (id) => request(`/api/agent/runs/${id}/text/`),
+  resumeDocx: (id) => request(`/api/agent/runs/${id}/docx/`, { blob: true }),
 };
 
 // The shareable demo build swaps in an in-browser copy of the API, so it works without a server.

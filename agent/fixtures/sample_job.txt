@@ -1,0 +1,16 @@
+Cloud Engineer (Sample Posting)
+
+We are looking for a Cloud Engineer to help migrate and operate workloads on Microsoft Azure.
+
+Responsibilities
+- Plan and execute cloud migrations from AWS to Azure
+- Build infrastructure as code with Terraform
+- Deploy containerized services with Docker and Kubernetes
+- Work with event-driven messaging and queues
+- Partner with business stakeholders to gather requirements
+
+Requirements
+- 2+ years of cloud engineering experience
+- Experience with Azure, Terraform, Docker, and Kubernetes
+- Python scripting
+- Familiarity with Kafka or other streaming platforms is a plus

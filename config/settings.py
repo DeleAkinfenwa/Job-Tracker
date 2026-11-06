@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     # Local
     "accounts",
     "tracker",
+    "agent",
 ]
 
 # Code that runs on every request: security headers, static files, CORS, sessions, auth.
@@ -146,7 +147,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "600/min"},
+    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "600/min", "agent": "20/min"},
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
@@ -180,3 +181,16 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# --- Resume agent ---
+# Only these accounts can use the agent; it spends your Anthropic credit. Leave empty to turn it off for everyone.
+# Set it in the hosting dashboard, never in the code, e.g. AGENT_OWNER_EMAILS=you@example.com
+AGENT_OWNER_EMAILS = env_list("AGENT_OWNER_EMAILS", "")
+# Kept on the server only; the website never sees it.
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+AGENT_MODEL = os.getenv("AGENT_MODEL", "claude-sonnet-5-5")
+# "anthropic" calls Claude. "mock" uses a built-in fake model for tests and local trials, at no cost.
+AGENT_PROVIDER = os.getenv("AGENT_PROVIDER", "anthropic").strip().lower()
+# Spending guards: at most this many AI calls, and this many tokens, per day.
+AGENT_DAILY_RUN_LIMIT = int(os.getenv("AGENT_DAILY_RUN_LIMIT", "25"))
+AGENT_DAILY_TOKEN_LIMIT = int(os.getenv("AGENT_DAILY_TOKEN_LIMIT", "600000"))

@@ -56,6 +56,19 @@ The API only accepts requests from websites it knows about, so tell it your Netl
 
 Now open your Netlify URL and click **Explore the demo**.
 
+## 5. Turn on the resume agent (optional, owner only)
+
+The agent uses your Anthropic credit, so it only works for the account you name here.
+
+1. On your live site, **sign up with the email you'll use** (skip this if you already have an account). Do this first:
+   once the next step is done, nobody can sign up with that email.
+2. In Render, open your service, go to **Environment**, and add:
+   - `AGENT_OWNER_EMAILS`: your email.
+   - `ANTHROPIC_API_KEY`: a key from [console.anthropic.com](https://console.anthropic.com).
+   - Optional: `AGENT_DAILY_RUN_LIMIT` (default 25) and `AGENT_DAILY_TOKEN_LIMIT` (default 600000).
+3. Save. Render restarts the API. Log in and a **Resume agent** link appears in the top bar, for you only.
+4. Also set a monthly spend limit in the Anthropic console, as a second safety net.
+
 ## Good to know
 
 - **The API sleeps when idle.** Render's free plan pauses the API after about 15 minutes without visitors. The next

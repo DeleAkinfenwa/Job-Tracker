@@ -816,3 +816,143 @@ th[aria-sort="descending"] .sort-button {
     flex-wrap: wrap;
   }
 }
+
+/* ---------- Resume agent ---------- */
+.agent-page {
+  max-width: 900px;
+}
+.agent-usage {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab.active {
+  border-bottom-color: var(--primary);
+  color: var(--primary);
+}
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.agent-result {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+}
+.agent-result-head {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.agent-block {
+  margin-top: 1.25rem;
+}
+.agent-block h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+.agent-block ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.agent-block li {
+  margin-bottom: 0.3rem;
+}
+.fit-score {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: 3px solid var(--border);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.fit-score small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.fit-score.hi {
+  border-color: var(--offer);
+}
+.fit-score.mid {
+  border-color: var(--interviewing);
+}
+.fit-score.lo {
+  border-color: var(--rejected);
+}
+.run-list,
+.entry-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.run-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.entry-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.entry-list p {
+  margin: 0.2rem 0 0;
+}
+.run-list li:last-child,
+.entry-list li:last-child {
+  border-bottom: 0;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.check input {
+  width: auto;
+}
+textarea.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+details.card > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+details.card[open] > summary {
+  margin-bottom: 1rem;
+}
+@media (width <= 800px) {
+  .agent-result-head,
+  .entry-list li {
+    flex-direction: column;
+  }
+}

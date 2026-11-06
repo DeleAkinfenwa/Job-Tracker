@@ -21,6 +21,8 @@ export default function Layout() {
             Applications
           </NavLink>
           <NavLink to="/companies">Companies</NavLink>
+          {/* Only the account set up on the server sees the resume agent. */}
+          {user.agent_enabled && <NavLink to="/agent">Resume agent</NavLink>}
         </nav>
         <div className="account">
           <span className="account-email">{user.email}</span>
